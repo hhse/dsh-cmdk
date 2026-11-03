@@ -1,0 +1,5 @@
+# dsh-cmdk: hosts the ⌘K palette (client) and two small host routes
+# (profile directory lookup + native folder open).
+- insert:
+    - id: dsh-cmdk
+      name: dsh-cmdk

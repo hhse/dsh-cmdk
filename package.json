@@ -1,0 +1,55 @@
+{
+  "name": "dsh-cmdk",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "⌘K command palette for DeepSeek Harness: jump to sessions, search message content, switch workspaces, toggle plugins.",
+  "icon": "icon.svg",
+  "keywords": [
+    "dsh",
+    "command-palette",
+    "search",
+    "productivity"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "README.md",
+    "LICENSE",
+    "screenshot.png",
+    "screenshot-actions.png",
+    "screenshot-ext.png",
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-layout"
+      ]
+    }
+  },
+  "license": "MIT",
+  "author": "mumuhmumu",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hhse/dsh-cmdk.git"
+  },
+  "homepage": "https://github.com/hhse/dsh-cmdk#readme",
+  "bugs": {
+    "url": "https://github.com/hhse/dsh-cmdk/issues"
+  }
+}
