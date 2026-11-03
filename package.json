@@ -1,6 +1,6 @@
 {
   "name": "dsh-cmdk",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "type": "module",
   "description": "⌘K command palette for DeepSeek Harness: jump to sessions, search message content, switch workspaces, toggle plugins.",

@@ -732,9 +732,21 @@ window.__ModuleLoader__.load({
         var bump = recent[entry.key] && recent[entry.key].at ? Math.min(recent[entry.key].count || 0, 6) * 0.02 : 0;
         scored.push({ entry: entry, score: score + bump });
       });
+      // keep every group contiguous: a group's place comes from its best hit, the
+      // rows inside keep their own order. Otherwise one group shows up twice.
+      var best = {};
+      scored.forEach((row) => {
+        var key = row.entry.group;
+        if (!(key in best) || row.score > best[key]) best[key] = row.score;
+      });
       scored.sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        return GROUP_ORDER.indexOf(a.entry.group) - GROUP_ORDER.indexOf(b.entry.group);
+        var ga = a.entry.group;
+        var gb = b.entry.group;
+        if (ga !== gb) {
+          if (best[gb] !== best[ga]) return best[gb] - best[ga];
+          return GROUP_ORDER.indexOf(ga) - GROUP_ORDER.indexOf(gb);
+        }
+        return b.score - a.score;
       });
       return scored.map((row) => row.entry);
     }
