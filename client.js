@@ -29,6 +29,7 @@ window.__ModuleLoader__.load({
       lineStrong: 'var(--dsw-alias-border-l2)',
       layer: 'var(--dsw-alias-bg-layer-1)',
       layerAlt: 'var(--dsw-alias-bg-layer-2)',
+      overlay: 'var(--dsw-alias-bg-overlay)',
       base: 'var(--dsw-alias-bg-base)',
       brand: 'var(--dsw-alias-brand-primary)',
       err: 'var(--dsw-alias-state-error-primary)',
@@ -39,9 +40,17 @@ window.__ModuleLoader__.load({
     var STRINGS = {
       zh: {
         placeholder: '搜索会话、工作区，或直接执行…',
-        hint: '↑↓ 选择 · ↵ 执行 · → 更多动作 · esc 关闭',
-        hintAction: '↵ 执行 · ← 返回 · esc 关闭',
-        noResult: '没有匹配项',
+        emptyTitle: '没有匹配的结果',
+        emptySub: '试试会话标题、工作区路径，或直接输入命令',
+        results: '项结果',
+        palette: '命令面板',
+        clear: '清除',
+        hintSelect: '选择',
+        hintOpen: '打开',
+        hintActions: '更多',
+        hintRun: '执行',
+        hintBack: '返回',
+        hintClose: '关闭',
         searching: '正在搜索…',
         action: '动作',
         session: '会话',
@@ -104,9 +113,17 @@ window.__ModuleLoader__.load({
       en: {
         footer: 'Search',
         placeholder: 'Search sessions and workspaces, or run a command…',
-        hint: '↑↓ move · ↵ run · → more actions · esc close',
-        hintAction: '↵ run · ← back · esc close',
-        noResult: 'No matches',
+        emptyTitle: 'No matching results',
+        emptySub: 'Try a session title, a workspace path, or a command',
+        results: 'results',
+        palette: 'Command palette',
+        clear: 'Clear',
+        hintSelect: 'select',
+        hintOpen: 'open',
+        hintActions: 'more',
+        hintRun: 'run',
+        hintBack: 'back',
+        hintClose: 'close',
         searching: 'Searching…',
         action: 'Actions',
         session: 'Sessions',
@@ -752,6 +769,336 @@ window.__ModuleLoader__.load({
     }
 
     // ---------------------------------------------------------------------
+    // visual helpers
+    // ---------------------------------------------------------------------
+    function mix(color, percent, over) {
+      return 'color-mix(in srgb, ' + color + ' ' + percent + '%, ' + (over || 'transparent') + ')';
+    }
+
+    var ICONS = {
+      search: [
+        ['circle', { cx: 11, cy: 11, r: 7 }],
+        ['path', { d: 'm20 20-3.2-3.2' }],
+      ],
+      session: [['path', { d: 'M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' }]],
+      workspace: [['path', { d: 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' }]],
+      plugin: [
+        ['path', { d: 'M21 8v8a2 2 0 0 1-1 1.73l-7 4a2 2 0 0 1-2 0l-7-4A2 2 0 0 1 3 16V8a2 2 0 0 1 1-1.73l7-4a2 2 0 0 1 2 0l7 4A2 2 0 0 1 21 8z' }],
+        ['path', { d: 'm3.3 7 8.7 5 8.7-5' }],
+        ['path', { d: 'M12 22V12' }],
+      ],
+      action: [['path', { d: 'M13 2 4 14h7l-1 8 9-12h-7z' }]],
+      theme: [
+        ['circle', { cx: 12, cy: 12, r: 4 }],
+        ['path', { d: 'M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4' }],
+      ],
+      system: [
+        ['path', { d: 'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3' }],
+        ['path', { d: 'M1 14h6M9 8h6M17 16h6' }],
+      ],
+      recent: [
+        ['circle', { cx: 12, cy: 12, r: 9 }],
+        ['path', { d: 'M12 7v5l3 2' }],
+      ],
+      ext: [['path', { d: 'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z' }]],
+      more: [
+        ['circle', { cx: 5, cy: 12, r: 1.4 }],
+        ['circle', { cx: 12, cy: 12, r: 1.4 }],
+        ['circle', { cx: 19, cy: 12, r: 1.4 }],
+      ],
+      back: [['path', { d: 'm15 18-6-6 6-6' }]],
+      'arrow-up-right': [['path', { d: 'M7 17 17 7M8 7h9v9' }]],
+      external: [['path', { d: 'M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6' }]],
+      pencil: [
+        ['path', { d: 'M12 20h9' }],
+        ['path', { d: 'M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z' }],
+      ],
+      branch: [
+        ['circle', { cx: 6, cy: 6, r: 2.5 }],
+        ['circle', { cx: 6, cy: 18, r: 2.5 }],
+        ['circle', { cx: 18, cy: 6, r: 2.5 }],
+        ['path', { d: 'M6 8.5v7M18 8.5c0 3-2 4-5 4H8' }],
+      ],
+      archive: [
+        ['rect', { x: 3, y: 4, width: 18, height: 4, rx: 1 }],
+        ['path', { d: 'M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4' }],
+      ],
+      copy: [
+        ['rect', { x: 9, y: 9, width: 11, height: 11, rx: 2 }],
+        ['path', { d: 'M5 15V5a2 2 0 0 1 2-2h10' }],
+      ],
+      folder: [['path', { d: 'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' }]],
+      download: [['path', { d: 'M12 3v12M7 10l5 5 5-5M5 21h14' }]],
+      power: [
+        ['path', { d: 'M12 3v9' }],
+        ['path', { d: 'M7 6.5a7 7 0 1 0 10 0' }],
+      ],
+      plus: [['path', { d: 'M12 5v14M5 12h14' }]],
+      refresh: [
+        ['path', { d: 'M20 11a8 8 0 1 0-2.3 5.7' }],
+        ['path', { d: 'M20 4v7h-7' }],
+      ],
+      globe: [
+        ['circle', { cx: 12, cy: 12, r: 9 }],
+        ['path', { d: 'M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9S14.5 18.3 12 21c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z' }],
+      ],
+      check: [['path', { d: 'm20 6-11 11-5-5' }]],
+      x: [['path', { d: 'M18 6 6 18M6 6l12 12' }]],
+    };
+
+    function Icon(props) {
+      var paint = ICONS[props.name] || ICONS.action;
+      var size = props.size || 16;
+      return h(
+        'svg',
+        {
+          width: size,
+          height: size,
+          viewBox: '0 0 24 24',
+          fill: 'none',
+          stroke: 'currentColor',
+          strokeWidth: props.stroke || 1.7,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+          'aria-hidden': 'true',
+          style: { display: 'block', flex: '0 0 auto' },
+        },
+        paint.map(function (entry, position) {
+          return h(entry[0], Object.assign({ key: position }, entry[1]));
+        }),
+      );
+    }
+
+    function iconForGroup(group) {
+      if (group === 'recent') return 'recent';
+      if (group === 'session') return 'session';
+      if (group === 'workspace') return 'workspace';
+      if (group === 'plugin') return 'plugin';
+      if (group === 'theme') return 'theme';
+      if (group === 'system') return 'system';
+      if (group === 'ext') return 'ext';
+      return 'action';
+    }
+
+    function iconForEntry(entry) {
+      if (!entry) return 'action';
+      var key = String(entry.key || '');
+      if (/:toggle$/.test(key)) return 'power';
+      if (/:dir$/.test(key)) return 'folder';
+      if (key.indexOf('theme:') === 0) return 'theme';
+      if (key.indexOf('lang:') === 0) return 'globe';
+      if (key.indexOf('plugin:') === 0) return 'plugin';
+      if (key.indexOf('workspace:') === 0) return 'workspace';
+      if (key.indexOf('session:') === 0) return 'session';
+      if (key.indexOf('ext:') === 0) return 'ext';
+      if (key.indexOf('cmd:reload') === 0) return 'refresh';
+      if (key.indexOf('cmd:new') === 0) return 'plus';
+      if (key.indexOf('cmd:profile') === 0) return 'folder';
+      if (key.indexOf('cmd:sessions') === 0) return 'folder';
+      if (key.indexOf('cmd:logs') === 0) return 'folder';
+      if (key.indexOf('action:rename') === 0) return 'pencil';
+      if (key.indexOf('action:fork') === 0) return 'branch';
+      if (key.indexOf('action:archive') === 0) return 'archive';
+      if (key.indexOf('action:copy') === 0) return 'copy';
+      if (key.indexOf('action:ws-copy') === 0) return 'copy';
+      if (key.indexOf('action:reveal') === 0) return 'external';
+      if (key.indexOf('action:ws-reveal') === 0) return 'external';
+      if (key.indexOf('action:export') === 0) return 'download';
+      if (key.indexOf('action:ws-new') === 0) return 'plus';
+      if (key.indexOf('action:open') === 0) return 'arrow-up-right';
+      if (key.indexOf('action:ws-open') === 0) return 'arrow-up-right';
+      return iconForGroup(entry.group);
+    }
+
+    function Kbd(props) {
+      return h(
+        'span',
+        {
+          style: {
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minWidth: 20,
+            height: 20,
+            padding: '0 5px',
+            boxSizing: 'border-box',
+            flex: '0 0 auto',
+            fontFamily: MONO,
+            fontSize: 10.5,
+            fontWeight: 600,
+            lineHeight: 1,
+            color: C.sub,
+            background: mix(C.layerAlt, 72),
+            border: '1px solid ' + mix(C.lineStrong, 65),
+            borderBottomColor: mix(C.lineStrong, 88),
+            borderRadius: 5,
+            boxShadow: '0 1px 0 ' + mix(C.text, 5),
+            whiteSpace: 'nowrap',
+          },
+        },
+        props.children,
+      );
+    }
+
+    function IconTile(props) {
+      var active = props.active;
+      return h(
+        'span',
+        {
+          style: {
+            position: 'relative',
+            flex: '0 0 auto',
+            width: 30,
+            height: 30,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 8,
+            color: active ? C.brand : C.sub,
+            background: active ? mix(C.brand, 13) : mix(C.layerAlt, 76),
+            border: '1px solid ' + (active ? mix(C.brand, 24) : mix(C.line, 70)),
+            transition: 'background 120ms ease, color 120ms ease, border-color 120ms ease',
+          },
+        },
+        h(Icon, { name: props.name, size: 15 }),
+        props.dot
+          ? h('span', {
+              style: {
+                position: 'absolute',
+                right: -1,
+                bottom: -1,
+                width: 7,
+                height: 7,
+                borderRadius: 4,
+                background: props.dot,
+                border: '2px solid ' + C.overlay,
+                boxSizing: 'content-box',
+              },
+            })
+          : null,
+      );
+    }
+
+    var SHIMMER =
+      'linear-gradient(90deg, ' +
+      mix(C.layerAlt, 78) +
+      ' 25%, ' +
+      mix(C.lineStrong, 58) +
+      ' 37%, ' +
+      mix(C.layerAlt, 78) +
+      ' 63%)';
+
+    var PANEL_CSS = [
+      '@keyframes dsh-cmdk-in{from{opacity:0;transform:translateY(-10px) scale(.985)}to{opacity:1;transform:none}}',
+      '@keyframes dsh-cmdk-fade{from{opacity:0}}',
+      '@keyframes dsh-cmdk-shimmer{0%{background-position:-240px 0}100%{background-position:240px 0}}',
+      '@keyframes dsh-cmdk-spin{to{transform:rotate(360deg)}}',
+      '.dsh-cmdk-input::placeholder{color:' + C.sub + ';opacity:.72}',
+      '.dsh-cmdk-back:hover,.dsh-cmdk-more:hover{background:' + mix(C.layerAlt, 82) + '!important;color:' + C.text + '!important}',
+      '.dsh-cmdk-clear:hover{color:' + C.text + '!important}',
+      '.dsh-cmdk-scroll{scrollbar-width:thin;scrollbar-color:' + mix(C.sub, 30) + ' transparent}',
+      '.dsh-cmdk-scroll::-webkit-scrollbar{width:10px;height:10px}',
+      '.dsh-cmdk-scroll::-webkit-scrollbar-track{background:transparent}',
+      '.dsh-cmdk-scroll::-webkit-scrollbar-thumb{background:' + mix(C.sub, 26) + ';border-radius:999px;border:3px solid transparent;background-clip:content-box}',
+      '.dsh-cmdk-scroll::-webkit-scrollbar-thumb:hover{background:' + mix(C.sub, 44) + ';border:3px solid transparent;background-clip:content-box}',
+      '@media (prefers-reduced-motion:reduce){.dsh-cmdk-panel,.dsh-cmdk-scrim{animation:none!important}.dsh-cmdk-panel *{transition:none!important}.dsh-cmdk-shimmer{animation:none!important}}',
+    ].join('');
+
+    function Hints(props) {
+      return h(
+        'div',
+        { style: { display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, overflow: 'hidden' } },
+        props.items.map(function (pair, position) {
+          return h(
+            'span',
+            {
+              key: position,
+              style: { display: 'inline-flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' },
+            },
+            h(Kbd, null, pair[0]),
+            pair[1],
+          );
+        }),
+      );
+    }
+
+    function EmptyState(props) {
+      return h(
+        'div',
+        {
+          style: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: 9,
+            padding: '54px 24px 60px',
+          },
+        },
+        h(
+          'span',
+          {
+            style: {
+              width: 46,
+              height: 46,
+              borderRadius: 14,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: mix(C.layerAlt, 80),
+              border: '1px solid ' + mix(C.lineStrong, 55),
+              color: C.sub,
+              marginBottom: 2,
+            },
+          },
+          h(Icon, { name: 'search', size: 20 }),
+        ),
+        h('div', { style: { fontSize: 13.5, fontWeight: 600, color: C.text } }, props.t.emptyTitle),
+        h(
+          'div',
+          { style: { fontSize: 12, color: C.sub, maxWidth: 300, lineHeight: 1.55 } },
+          props.t.emptySub,
+        ),
+      );
+    }
+
+    function Skeleton() {
+      return h(
+        'div',
+        { style: { padding: '8px 2px' } },
+        [0, 1, 2, 3].map(function (row) {
+          var shimmer = {
+            background: SHIMMER,
+            backgroundSize: '400px 100%',
+            animation: 'dsh-cmdk-shimmer 1.3s linear infinite',
+          };
+          return h(
+            'div',
+            { key: row, style: { display: 'flex', alignItems: 'center', gap: 11, padding: '8px 10px' } },
+            h('div', { style: Object.assign({ width: 30, height: 30, borderRadius: 8, flex: '0 0 auto' }, shimmer) }),
+            h(
+              'div',
+              { style: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 } },
+              h(
+                'div',
+                { style: Object.assign({ height: 10, width: 46 + ((row * 13) % 34) + '%', borderRadius: 4 }, shimmer) },
+              ),
+              h(
+                'div',
+                {
+                  style: Object.assign(
+                    { height: 8, width: 28 + ((row * 9) % 26) + '%', borderRadius: 4, opacity: 0.7 },
+                    shimmer,
+                  ),
+                },
+              ),
+            ),
+          );
+        }),
+      );
+    }
+
+    // ---------------------------------------------------------------------
     // the palette itself
     // ---------------------------------------------------------------------
     function Palette(props) {
@@ -766,7 +1113,10 @@ window.__ModuleLoader__.load({
       var [input, setInput] = useState(null);
       var [status, setStatus] = useState(null);
       var [busy, setBusy] = useState(false);
+      var [focused, setFocused] = useState(false);
+      var [canFade, setCanFade] = useState(false);
       var inputRef = useRef(null);
+      var listRef = useRef(null);
       var [workspaces, setWorkspaces] = useState([]);
       var [archived, setArchived] = useState({});
       var [recent, setRecent] = useState(() => readRecent());
@@ -800,7 +1150,8 @@ window.__ModuleLoader__.load({
         if (!open) return undefined;
         function relay(event) {
           var node = panelRef.current;
-          if (node && node.contains(event.target)) return;
+          var target = event.target;
+          if (node && target && target.nodeType && node.contains(target)) return;
           if (handlerRef.current) handlerRef.current(event);
         }
         window.addEventListener('keydown', relay, true);
@@ -909,8 +1260,41 @@ window.__ModuleLoader__.load({
       var active = Math.min(index, Math.max(items.length - 1, 0));
 
       function close() {
+        setFocused(false);
         store.set(false);
       }
+
+      function goBack() {
+        if (input) {
+          setInput(null);
+          return;
+        }
+        if (stack.length) {
+          setStack((prev) => prev.slice(0, -1));
+          setIndex(0);
+        }
+      }
+
+      function syncScrollFade() {
+        var node = listRef.current;
+        if (!node) return;
+        setCanFade(node.scrollHeight - node.scrollTop - node.clientHeight > 4);
+      }
+
+      // Keep the highlighted row inside the viewport when the keyboard moves it.
+      useEffect(() => {
+        if (!open) return;
+        var node = listRef.current;
+        if (!node) return;
+        var option = node.querySelector('#dsh-cmdk-opt-' + active);
+        if (option && typeof option.scrollIntoView === 'function') {
+          option.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
+        }
+      }, [open, active, stack.length, input, items.length]);
+
+      useEffect(() => {
+        syncScrollFade();
+      }, [open, items.length, query, stack.length, input, catalog.loading]);
 
       function remember(key) {
         var next = bumpRecent(key);
@@ -965,7 +1349,7 @@ window.__ModuleLoader__.load({
 
       function openActions(entry) {
         if (!entry || !entry.actions) return false;
-        setStack((prev) => prev.concat([{ title: entry.title, items: entry.actions() }]));
+        setStack((prev) => prev.concat([{ title: entry.title, group: entry.group, items: entry.actions() }]));
         setIndex(0);
         return true;
       }
@@ -1060,55 +1444,361 @@ window.__ModuleLoader__.load({
 
       if (!open) return null;
 
-
-      var rows = [];
+      var sections = [];
       var lastGroup = null;
+      var counts = {};
+      items.forEach((entry) => {
+        counts[entry.group] = (counts[entry.group] || 0) + 1;
+      });
       items.forEach((entry, position) => {
         if (entry.group !== lastGroup) {
           lastGroup = entry.group;
-          rows.push(
+          sections.push({
+            key: 'group:' + entry.group + ':' + position,
+            group: entry.group,
+            rows: [],
+          });
+        }
+        sections[sections.length - 1].rows.push(
+          renderRow(
+            entry,
+            position === active,
+            () => run(entry),
+            () => openActions(entry),
+            () => setIndex(position),
+            position,
+            t.hintActions,
+          ),
+        );
+      });
+      var rows = sections.map(function (section) {
+        return h(
+          'div',
+          {
+            key: section.key,
+            role: 'group',
+            'aria-label': groupLabel(section.group, lang),
+          },
+          h(
+            'div',
+            {
+              style: {
+                position: 'sticky',
+                top: 0,
+                zIndex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 8,
+                padding: '11px 10px 5px',
+                background: mix(C.overlay, 97),
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+              },
+            },
             h(
-              'div',
+              'span',
               {
-                key: 'group:' + entry.group + ':' + position,
                 style: {
-                  position: 'sticky',
-                  top: 0,
-                  zIndex: 1,
-                  padding: '10px 14px 6px',
-                  fontSize: 11,
-                  fontWeight: 600,
-                  letterSpacing: '.02em',
-                  color: C.sub,
+                  fontSize: 10.5,
+                  fontWeight: 700,
+                  letterSpacing: '.09em',
                   textTransform: 'uppercase',
-                  background: C.layer,
+                  color: C.sub,
                 },
               },
-              groupLabel(entry.group, lang),
+              groupLabel(section.group, lang),
             ),
-          );
-        }
-        rows.push(renderRow(
-          entry,
-          position === active,
-          () => run(entry),
-          () => openActions(entry),
-          () => setIndex(position),
-        ));
+            h(
+              'span',
+              {
+                style: {
+                  fontSize: 10.5,
+                  fontVariantNumeric: 'tabular-nums',
+                  color: mix(C.sub, 72),
+                },
+              },
+              counts[section.group],
+            ),
+          ),
+          section.rows,
+        );
       });
+
+      var headerStyle = {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 9,
+        padding: '12px 14px',
+        borderBottom: '1px solid ' + mix(C.lineStrong, 55),
+        position: 'relative',
+        zIndex: 2,
+        background: mix(C.overlay, 70),
+      };
+      var fieldStyle = {
+        flex: 1,
+        minWidth: 0,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 9,
+        height: 42,
+        padding: '0 11px',
+        boxSizing: 'border-box',
+        borderRadius: 10,
+        background: mix(C.base, 66),
+        border: '1px solid ' + (focused ? mix(C.brand, 55) : mix(C.lineStrong, 62)),
+        boxShadow: focused
+          ? '0 0 0 3px ' + mix(C.brand, 14) + ', inset 0 1px 2px ' + mix(C.text, 5)
+          : 'inset 0 1px 2px ' + mix(C.text, 4),
+        transition: 'border-color 140ms ease, box-shadow 140ms ease',
+      };
+      var inputStyle = {
+        flex: 1,
+        minWidth: 0,
+        width: '100%',
+        height: '100%',
+        padding: 0,
+        border: 'none',
+        outline: 'none',
+        background: 'transparent',
+        color: C.text,
+        fontSize: 15,
+        fontFamily: 'inherit',
+        caretColor: C.brand,
+      };
+      var backButton = h(
+        'button',
+        {
+          type: 'button',
+          className: 'dsh-cmdk-back',
+          'aria-label': t.hintBack,
+          onClick: goBack,
+          style: {
+            flex: '0 0 auto',
+            width: 28,
+            height: 28,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 0,
+            border: 'none',
+            borderRadius: 8,
+            background: 'transparent',
+            color: C.sub,
+            cursor: 'pointer',
+            transition: 'background 120ms ease, color 120ms ease',
+          },
+        },
+        h(Icon, { name: 'back', size: 16 }),
+      );
+
+      var header;
+      if (input) {
+        header = h(
+          'div',
+          { style: headerStyle },
+          backButton,
+          h(
+            'div',
+            { style: fieldStyle },
+            h(Icon, { name: 'pencil', size: 16 }),
+            h('input', {
+              ref: inputRef,
+              value: input.value,
+              placeholder: input.title,
+              className: 'dsh-cmdk-input',
+              onChange: (event) => setInput(Object.assign({}, input, { value: event.target.value })),
+              onFocus: () => setFocused(true),
+              onBlur: () => setFocused(false),
+              style: inputStyle,
+              'aria-label': input.title,
+              spellCheck: false,
+              autoComplete: 'off',
+            }),
+          ),
+          h(Kbd, null, '↵'),
+          h(Kbd, null, 'esc'),
+        );
+      } else if (current) {
+        header = h(
+          'div',
+          { style: headerStyle },
+          backButton,
+          h(
+            'div',
+            { style: { flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 10 } },
+            h(IconTile, { name: iconForGroup(current.group || 'action'), active: true }),
+            h(
+              'span',
+              {
+                style: {
+                  minWidth: 0,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: C.text,
+                  letterSpacing: '-.005em',
+                },
+              },
+              current.title,
+            ),
+          ),
+          h(Kbd, null, 'esc'),
+        );
+      } else {
+        header = h(
+          'div',
+          { style: headerStyle },
+          h(
+            'div',
+            { style: fieldStyle },
+            h(Icon, { name: 'search', size: 17 }),
+            h('input', {
+              ref: inputRef,
+              value: query,
+              placeholder: t.placeholder,
+              className: 'dsh-cmdk-input',
+              onChange: (event) => {
+                setQuery(event.target.value);
+                setIndex(0);
+              },
+              onFocus: () => setFocused(true),
+              onBlur: () => setFocused(false),
+              style: inputStyle,
+              'aria-label': t.placeholder,
+              'aria-controls': 'dsh-cmdk-list',
+              'aria-activedescendant': items.length ? 'dsh-cmdk-opt-' + active : undefined,
+              spellCheck: false,
+              autoComplete: 'off',
+            }),
+            query
+              ? h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'dsh-cmdk-clear',
+                    'aria-label': t.clear,
+                    onClick: () => {
+                      setQuery('');
+                      setIndex(0);
+                      if (inputRef.current) inputRef.current.focus();
+                    },
+                    style: {
+                      flex: '0 0 auto',
+                      width: 22,
+                      height: 22,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 0,
+                      border: 'none',
+                      borderRadius: 6,
+                      background: 'transparent',
+                      color: C.sub,
+                      cursor: 'pointer',
+                      transition: 'color 120ms ease',
+                    },
+                  },
+                  h(Icon, { name: 'x', size: 14 }),
+                )
+              : null,
+          ),
+          h(Kbd, null, 'esc'),
+        );
+      }
+
+      var statusKind = status && status.indexOf(t.failed) === 0 ? 'err' : 'ok';
+      var footerLeft;
+      if (status) {
+        footerLeft = h(
+          'span',
+          {
+            style: {
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 7,
+              minWidth: 0,
+              overflow: 'hidden',
+              color: statusKind === 'err' ? C.err : C.ok,
+              fontWeight: 500,
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            },
+          },
+          h('span', {
+            style: {
+              flex: '0 0 auto',
+              width: 6,
+              height: 6,
+              borderRadius: 3,
+              background: 'currentColor',
+            },
+          }),
+          status,
+        );
+      } else if (busy) {
+        footerLeft = h(
+          'span',
+          {
+            style: {
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 7,
+              color: C.brand,
+            },
+          },
+          h('span', {
+            style: {
+              width: 11,
+              height: 11,
+              borderRadius: 6,
+              border: '1.6px solid ' + mix(C.brand, 35),
+              borderTopColor: C.brand,
+              animation: 'dsh-cmdk-spin .7s linear infinite',
+            },
+          }),
+          t.searching,
+        );
+      } else {
+        var hints;
+        if (!items.length) {
+          hints = [['esc', t.hintClose]];
+        } else if (current) {
+          hints = [
+            ['↵', t.hintRun],
+            ['←', t.hintBack],
+            ['esc', t.hintClose],
+          ];
+        } else {
+          hints = [
+            ['↑↓', t.hintSelect],
+            ['↵', t.hintOpen],
+            ['→', t.hintActions],
+            ['esc', t.hintClose],
+          ];
+        }
+        footerLeft = h(Hints, { items: hints });
+      }
 
       var tree = h(
         'div',
         {
+          className: 'dsh-cmdk-scrim',
           style: {
             position: 'fixed',
             inset: 0,
             zIndex: 60,
-            background: 'color-mix(in srgb, #000 28%, transparent)',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'flex-start',
-            paddingTop: '12vh',
+            padding: 'clamp(48px, 12vh, 120px) 20px 20px',
+            boxSizing: 'border-box',
+            background: 'color-mix(in srgb, #000 36%, transparent)',
+            backdropFilter: 'blur(10px) saturate(1.05)',
+            WebkitBackdropFilter: 'blur(10px) saturate(1.05)',
+            animation: 'dsh-cmdk-fade 140ms ease-out',
           },
           onMouseDown: (event) => {
             if (event.target === event.currentTarget) close();
@@ -1118,125 +1808,93 @@ window.__ModuleLoader__.load({
           'div',
           {
             role: 'dialog',
-            'aria-label': 'Command palette',
+            'aria-modal': 'true',
+            'aria-label': t.palette,
+            className: 'dsh-cmdk-panel',
             ref: panelRef,
             tabIndex: -1,
             onKeyDown: onKeyDown,
             style: {
-              width: 'min(640px, calc(100vw - 48px))',
-              maxHeight: '70vh',
+              position: 'relative',
+              width: 'min(680px, calc(100vw - 40px))',
+              maxHeight: 'min(72vh, 720px)',
               display: 'flex',
               flexDirection: 'column',
               boxSizing: 'border-box',
-              background: C.layer,
+              background: mix(C.overlay, 96),
               color: C.text,
-              border: '1px solid ' + C.lineStrong,
-              borderRadius: 14,
-              boxShadow: '0 24px 64px rgba(0,0,0,.34)',
+              border: '1px solid ' + mix(C.lineStrong, 72),
+              borderRadius: 16,
+              boxShadow:
+                '0 0 0 1px ' +
+                mix(C.text, 4) +
+                ' inset, 0 32px 80px -18px rgba(0,0,0,.6), 0 12px 28px -14px rgba(0,0,0,.45)',
+              backdropFilter: 'blur(28px) saturate(1.35)',
+              WebkitBackdropFilter: 'blur(28px) saturate(1.35)',
               overflow: 'hidden',
+              outline: 'none',
               fontFamily: 'inherit',
+              animation: 'dsh-cmdk-in 180ms cubic-bezier(.16,1,.3,1)',
             },
           },
-          h(
-            'div',
-            {
-              style: {
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '10px 12px',
-                background: C.layerAlt,
-                borderBottom: '1px solid ' + C.lineStrong,
-                boxShadow: '0 8px 16px -18px rgba(0,0,0,.9)',
-              },
+          h('style', null, PANEL_CSS),
+          h('div', {
+            'aria-hidden': 'true',
+            style: {
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 110,
+              pointerEvents: 'none',
+              background:
+                'radial-gradient(120% 100% at 50% -30%, ' + mix(C.brand, 12) + ', transparent 72%)',
             },
-            current || input
-              ? h(
-                  'button',
-                  {
-                    type: 'button',
-                    'aria-label': 'back',
-                    onClick: () => {
-                      if (input) {
-                        setInput(null);
-                        return;
-                      }
-                      setStack((prev) => prev.slice(0, -1));
-                      setIndex(0);
-                    },
-                    style: {
-                      border: 'none',
-                      background: 'transparent',
-                      color: C.sub,
-                      cursor: 'pointer',
-                      fontSize: 14,
-                      padding: '0 2px',
-                    },
-                  },
-                  '←',
-                )
-              : h('span', { style: { color: C.sub, fontSize: 13, fontFamily: MONO } }, '⌘K'),
-            current && !input
-              ? h(
-                  'div',
-                  {
-                    style: {
-                      flex: 1,
-                      minWidth: 0,
-                      fontSize: 14,
-                      color: C.text,
-                      padding: '7px 10px',
-                      borderRadius: 9,
-                      background: C.base,
-                      border: '1px solid ' + C.lineStrong,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    },
-                  },
-                  current.title,
-                )
-              : h('input', {
-                  ref: inputRef,
-                  value: input ? input.value : query,
-                  placeholder: input ? input.title : t.placeholder,
-                  onChange: (event) => {
-                    if (input) setInput(Object.assign({}, input, { value: event.target.value }));
-                    else {
-                      setQuery(event.target.value);
-                      setIndex(0);
-                    }
-                  },
-                  style: {
-                    flex: 1,
-                    minWidth: 0,
-                    border: '1px solid ' + C.lineStrong,
-                    borderRadius: 9,
-                    outline: 'none',
-                    background: C.base,
-                    color: C.text,
-                    fontSize: 15,
-                    padding: '7px 10px',
-                    boxShadow: 'inset 0 1px 2px rgba(0,0,0,.18)',
-                  },
-                }),
-          ),
+          }),
+          h('div', {
+            'aria-hidden': 'true',
+            style: {
+              position: 'absolute',
+              top: 0,
+              left: '12%',
+              right: '12%',
+              height: 1,
+              zIndex: 3,
+              pointerEvents: 'none',
+              background:
+                'linear-gradient(90deg, transparent, ' + mix(C.brand, 55) + ', transparent)',
+            },
+          }),
+          header,
           h(
             'div',
             {
+              id: 'dsh-cmdk-list',
+              role: 'listbox',
+              'aria-label': t.results,
+              className: 'dsh-cmdk-scroll',
+              ref: listRef,
+              onScroll: syncScrollFade,
               style: {
                 overflowY: 'auto',
                 flex: 1,
                 minHeight: 0,
-                padding: '6px 0 8px',
-                background: C.layer,
+                padding: '4px 8px 10px',
+                WebkitMaskImage: canFade
+                  ? 'linear-gradient(to bottom, #000 calc(100% - 26px), transparent)'
+                  : undefined,
+                maskImage: canFade
+                  ? 'linear-gradient(to bottom, #000 calc(100% - 26px), transparent)'
+                  : undefined,
               },
             },
-            input ? null : items.length ? rows : h(
-              'div',
-              { style: { padding: '18px 16px', color: C.sub, fontSize: 13 } },
-              catalog.loading ? t.searching : t.noResult,
-            ),
+            input
+              ? null
+              : items.length
+                ? rows
+                : catalog.loading
+                  ? h(Skeleton)
+                  : h(EmptyState, { t: t }),
           ),
           h(
             'div',
@@ -1247,24 +1905,40 @@ window.__ModuleLoader__.load({
                 justifyContent: 'space-between',
                 gap: 12,
                 padding: '8px 14px',
-                background: C.layerAlt,
-                borderTop: '1px solid ' + C.lineStrong,
+                borderTop: '1px solid ' + mix(C.lineStrong, 50),
+                background: mix(C.layerAlt, 34),
                 fontSize: 11,
                 color: C.sub,
+                minHeight: 37,
+                boxSizing: 'border-box',
               },
             },
-            h('span', null, status || (busy ? t.searching : current ? t.hintAction : t.hint)),
+            footerLeft,
+            h(
+              'span',
+              {
+                style: {
+                  flex: '0 0 auto',
+                  fontFamily: MONO,
+                  fontSize: 10.5,
+                  fontVariantNumeric: 'tabular-nums',
+                  color: mix(C.sub, 80),
+                },
+              },
+              items.length ? active + 1 + ' / ' + items.length : '',
+            ),
           ),
         ),
       );
       return tree;
     }
 
-    function renderRow(entry, active, onRun, onActions, onHover) {
+    function renderRow(entry, active, onRun, onActions, onHover, position, moreLabel) {
       return h(
         'div',
         {
           key: entry.key,
+          id: 'dsh-cmdk-opt-' + position,
           role: 'option',
           'aria-selected': active ? 'true' : 'false',
           onClick: onRun,
@@ -1273,34 +1947,31 @@ window.__ModuleLoader__.load({
           style: {
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
-            padding: '9px 14px',
+            gap: 11,
+            margin: '1px 0',
+            padding: '7px 10px',
+            borderRadius: 10,
             cursor: 'pointer',
-            background: active ? C.layerAlt : 'transparent',
-            boxShadow: active ? 'inset 2px 0 0 ' + C.brand : 'none',
+            scrollMarginTop: 30,
+            scrollMarginBottom: 30,
+            background: active ? mix(C.brand, 11, C.layerAlt) : 'transparent',
+            boxShadow: active ? 'inset 0 0 0 1px ' + mix(C.brand, 20) : 'none',
+            transition: 'background 110ms ease, box-shadow 110ms ease',
+            outline: 'none',
           },
         },
-        entry.dot
-          ? h('span', {
-              style: {
-                flex: '0 0 auto',
-                width: 6,
-                height: 6,
-                borderRadius: 3,
-                background: entry.dot,
-                opacity: 0.9,
-              },
-            })
-          : null,
+        h(IconTile, { name: iconForEntry(entry), active: active, dot: entry.dot }),
         h(
           'div',
-          { style: { minWidth: 0, flex: 1 } },
+          { style: { minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 2 } },
           h(
             'div',
             {
               style: {
                 fontSize: 13.5,
+                fontWeight: 500,
                 color: C.text,
+                letterSpacing: '-.005em',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -1315,7 +1986,6 @@ window.__ModuleLoader__.load({
                   style: {
                     fontSize: 11.5,
                     color: C.sub,
-                    marginTop: 2,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
@@ -1325,63 +1995,80 @@ window.__ModuleLoader__.load({
               )
             : null,
         ),
+        active ? h(Kbd, null, '↵') : null,
         entry.actions
           ? h(
-              'span',
+              'button',
               {
-                title: 'actions',
+                type: 'button',
+                className: 'dsh-cmdk-more',
+                title: moreLabel,
+                'aria-label': moreLabel,
+                tabIndex: -1,
                 onClick: (event) => {
                   event.stopPropagation();
                   onActions();
                 },
                 style: {
                   flex: '0 0 auto',
-                  padding: '0 4px',
+                  width: 24,
+                  height: 24,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  border: 'none',
+                  borderRadius: 6,
+                  background: 'transparent',
                   color: C.sub,
-                  fontSize: 13,
-                  opacity: active ? 1 : 0.5,
                   cursor: 'pointer',
+                  opacity: active ? 0.95 : 0.35,
+                  transition: 'opacity 120ms ease, background 120ms ease, color 120ms ease',
                 },
               },
-              '…',
+              h(Icon, { name: 'more', size: 15 }),
             )
           : null,
-        active ? h('span', { style: { fontSize: 11, color: C.sub, fontFamily: MONO } }, '↵') : null,
       );
     }
 
     function FooterButton(props) {
       var lang = useLang(props.ctx);
       var t = copy(lang);
+      var [hover, setHover] = useState(false);
       return h(
         'button',
         {
           type: 'button',
           onClick: () => store.toggle(),
           title: '⌘K / Ctrl+K',
+          onMouseEnter: () => setHover(true),
+          onMouseLeave: () => setHover(false),
           style: {
             display: 'flex',
             alignItems: 'center',
-            gap: 6,
+            gap: 8,
             width: '100%',
-            padding: '6px 8px',
-            border: 'none',
-            borderRadius: 8,
-            background: 'transparent',
-            color: C.sub,
+            padding: '7px 9px',
+            boxSizing: 'border-box',
+            border: '1px solid ' + (hover ? mix(C.lineStrong, 72) : mix(C.lineStrong, 45)),
+            borderRadius: 9,
+            background: hover ? mix(C.layerAlt, 80) : 'transparent',
+            color: hover ? C.text : C.sub,
             cursor: 'pointer',
             fontSize: 12,
+            fontFamily: 'inherit',
             textAlign: 'left',
-          },
-          onMouseEnter: (event) => {
-            event.currentTarget.style.background = C.layerAlt;
-          },
-          onMouseLeave: (event) => {
-            event.currentTarget.style.background = 'transparent';
+            transition: 'background 120ms ease, border-color 120ms ease, color 120ms ease',
           },
         },
-        h('span', { style: { fontFamily: MONO, fontSize: 11, opacity: 0.8 } }, '⌘K'),
-        h('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, t.footer || '搜索'),
+        h(Icon, { name: 'search', size: 14 }),
+        h(
+          'span',
+          { style: { flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
+          t.footer || '搜索',
+        ),
+        h(Kbd, null, '⌘K'),
       );
     }
 
