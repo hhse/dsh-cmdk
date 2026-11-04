@@ -41,8 +41,10 @@ window.__ModuleLoader__.load({
       zh: {
         placeholder: '搜索会话、工作区，或直接执行…',
         emptyTitle: '没有匹配的结果',
+        emptyFor: '没有找到 “{q}”',
         emptySub: '试试会话标题、工作区路径，或直接输入命令',
         results: '项结果',
+        resultsLabel: '搜索结果',
         palette: '命令面板',
         clear: '清除',
         hintSelect: '选择',
@@ -114,8 +116,10 @@ window.__ModuleLoader__.load({
         footer: 'Search',
         placeholder: 'Search sessions and workspaces, or run a command…',
         emptyTitle: 'No matching results',
+        emptyFor: 'No results for “{q}”',
         emptySub: 'Try a session title, a workspace path, or a command',
         results: 'results',
+        resultsLabel: 'Search results',
         palette: 'Command palette',
         clear: 'Clear',
         hintSelect: 'select',
@@ -1022,7 +1026,47 @@ window.__ModuleLoader__.load({
       );
     }
 
+    function Highlight(props) {
+      var text = props.text == null ? '' : String(props.text);
+      var query = String(props.query || '').trim();
+      if (!query) return text;
+      var lower = text.toLowerCase();
+      var needle = query.toLowerCase();
+      var at = lower.indexOf(needle);
+      if (at < 0) return text;
+      var parts = [];
+      var from = 0;
+      var guard = 0;
+      while (at >= 0 && guard < 40) {
+        if (at > from) parts.push(text.slice(from, at));
+        parts.push(
+          h(
+            'mark',
+            {
+              key: 'm' + parts.length,
+              style: {
+                backgroundColor: mix(C.brand, 22),
+                boxShadow: 'inset 0 -1px 0 ' + mix(C.brand, 62),
+                color: 'inherit',
+                borderRadius: 3,
+                padding: '0 1px',
+                fontWeight: 600,
+              },
+            },
+            text.slice(at, at + needle.length),
+          ),
+        );
+        from = at + needle.length;
+        at = lower.indexOf(needle, from);
+        guard += 1;
+      }
+      if (from < text.length) parts.push(text.slice(from));
+      return parts;
+    }
+
     function EmptyState(props) {
+      var query = String(props.query || '').trim();
+      if (query.length > 30) query = query.slice(0, 30) + '…';
       return h(
         'div',
         {
@@ -1053,7 +1097,20 @@ window.__ModuleLoader__.load({
           },
           h(Icon, { name: 'search', size: 20 }),
         ),
-        h('div', { style: { fontSize: 13.5, fontWeight: 600, color: C.text } }, props.t.emptyTitle),
+        h(
+          'div',
+          {
+            style: {
+              fontSize: 13.5,
+              fontWeight: 600,
+              color: C.text,
+              maxWidth: 380,
+              lineHeight: 1.4,
+              overflowWrap: 'anywhere',
+            },
+          },
+          query ? props.t.emptyFor.replace('{q}', function () { return query; }) : props.t.emptyTitle,
+        ),
         h(
           'div',
           { style: { fontSize: 12, color: C.sub, maxWidth: 300, lineHeight: 1.55 } },
@@ -1107,7 +1164,7 @@ window.__ModuleLoader__.load({
       var t = copy(lang);
       var open = useOpen();
       var [query, setQuery] = useState('');
-      var [catalog, setCatalog] = useState({ items: [], loading: false });
+      var [catalog, setCatalog] = useState({ items: [], loading: true });
       var [index, setIndex] = useState(0);
       var [stack, setStack] = useState([]);
       var [input, setInput] = useState(null);
@@ -1228,7 +1285,7 @@ window.__ModuleLoader__.load({
         setRecent(readRecent());
         var handle = setTimeout(() => {
           if (inputRef.current) {
-            inputRef.current.focus();
+            inputRef.current.focus({ preventScroll: true });
             inputRef.current.select && inputRef.current.select();
           }
         }, 30);
@@ -1239,7 +1296,7 @@ window.__ModuleLoader__.load({
         if (!open) return undefined;
         var handle = setTimeout(() => {
           var node = inputRef.current;
-          if (node && typeof node.focus === 'function') node.focus();
+          if (node && typeof node.focus === 'function') node.focus({ preventScroll: true });
         }, 20);
         return () => clearTimeout(handle);
       }, [open, stack.length, input]);
@@ -1384,6 +1441,9 @@ window.__ModuleLoader__.load({
       }
 
       function onKeyDown(event) {
+        if (event.isComposing || (event.nativeEvent && event.nativeEvent.isComposing) || event.keyCode === 229) {
+          return;
+        }
         if (event.key === 'Escape') {
           event.preventDefault();
           event.stopPropagation();
@@ -1468,6 +1528,7 @@ window.__ModuleLoader__.load({
             () => setIndex(position),
             position,
             t.hintActions,
+            stack.length ? '' : query,
           ),
         );
       });
@@ -1491,9 +1552,7 @@ window.__ModuleLoader__.load({
                 justifyContent: 'space-between',
                 gap: 8,
                 padding: '11px 10px 5px',
-                background: mix(C.overlay, 97),
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
+                background: C.overlay,
               },
             },
             h(
@@ -1571,6 +1630,7 @@ window.__ModuleLoader__.load({
         {
           type: 'button',
           className: 'dsh-cmdk-back',
+          title: t.hintBack,
           'aria-label': t.hintBack,
           onClick: goBack,
           style: {
@@ -1683,7 +1743,7 @@ window.__ModuleLoader__.load({
                     onClick: () => {
                       setQuery('');
                       setIndex(0);
-                      if (inputRef.current) inputRef.current.focus();
+                      if (inputRef.current) inputRef.current.focus({ preventScroll: true });
                     },
                     style: {
                       flex: '0 0 auto',
@@ -1796,8 +1856,6 @@ window.__ModuleLoader__.load({
             padding: 'clamp(48px, 12vh, 120px) 20px 20px',
             boxSizing: 'border-box',
             background: 'color-mix(in srgb, #000 36%, transparent)',
-            backdropFilter: 'blur(10px) saturate(1.05)',
-            WebkitBackdropFilter: 'blur(10px) saturate(1.05)',
             animation: 'dsh-cmdk-fade 140ms ease-out',
           },
           onMouseDown: (event) => {
@@ -1821,7 +1879,7 @@ window.__ModuleLoader__.load({
               display: 'flex',
               flexDirection: 'column',
               boxSizing: 'border-box',
-              background: mix(C.overlay, 96),
+              background: C.overlay,
               color: C.text,
               border: '1px solid ' + mix(C.lineStrong, 72),
               borderRadius: 16,
@@ -1829,8 +1887,6 @@ window.__ModuleLoader__.load({
                 '0 0 0 1px ' +
                 mix(C.text, 4) +
                 ' inset, 0 32px 80px -18px rgba(0,0,0,.6), 0 12px 28px -14px rgba(0,0,0,.45)',
-              backdropFilter: 'blur(28px) saturate(1.35)',
-              WebkitBackdropFilter: 'blur(28px) saturate(1.35)',
               overflow: 'hidden',
               outline: 'none',
               fontFamily: 'inherit',
@@ -1871,7 +1927,7 @@ window.__ModuleLoader__.load({
             {
               id: 'dsh-cmdk-list',
               role: 'listbox',
-              'aria-label': t.results,
+              'aria-label': input ? input.title : t.resultsLabel,
               className: 'dsh-cmdk-scroll',
               ref: listRef,
               onScroll: syncScrollFade,
@@ -1894,7 +1950,7 @@ window.__ModuleLoader__.load({
                 ? rows
                 : catalog.loading
                   ? h(Skeleton)
-                  : h(EmptyState, { t: t }),
+                  : h(EmptyState, { t: t, query: query }),
           ),
           h(
             'div',
@@ -1913,6 +1969,26 @@ window.__ModuleLoader__.load({
                 boxSizing: 'border-box',
               },
             },
+            h(
+              'span',
+              {
+                role: 'status',
+                'aria-live': 'polite',
+                'aria-atomic': 'true',
+                style: {
+                  position: 'absolute',
+                  width: 1,
+                  height: 1,
+                  padding: 0,
+                  margin: -1,
+                  overflow: 'hidden',
+                  clip: 'rect(0 0 0 0)',
+                  whiteSpace: 'nowrap',
+                  border: 0,
+                },
+              },
+              !input && query && !catalog.loading ? items.length + ' ' + t.results : '',
+            ),
             footerLeft,
             h(
               'span',
@@ -1933,7 +2009,7 @@ window.__ModuleLoader__.load({
       return tree;
     }
 
-    function renderRow(entry, active, onRun, onActions, onHover, position, moreLabel) {
+    function renderRow(entry, active, onRun, onActions, onHover, position, moreLabel, query) {
       return h(
         'div',
         {
@@ -1977,7 +2053,7 @@ window.__ModuleLoader__.load({
                 whiteSpace: 'nowrap',
               },
             },
-            entry.title,
+            h(Highlight, { text: entry.title, query: query }),
           ),
           entry.sub
             ? h(
@@ -1991,7 +2067,7 @@ window.__ModuleLoader__.load({
                     whiteSpace: 'nowrap',
                   },
                 },
-                entry.sub,
+                h(Highlight, { text: entry.sub, query: query }),
               )
             : null,
         ),
@@ -2022,7 +2098,7 @@ window.__ModuleLoader__.load({
                   background: 'transparent',
                   color: C.sub,
                   cursor: 'pointer',
-                  opacity: active ? 0.95 : 0.35,
+                  opacity: active ? 0.95 : 0.45,
                   transition: 'opacity 120ms ease, background 120ms ease, color 120ms ease',
                 },
               },
