@@ -97,10 +97,10 @@ window.__DSH_CMDK__?.unregister('my-plugin.open-docs');
 
 ## 安装
 
-插件市场搜 `dsh-cmdk`，或本地目录安装：
+插件市场搜 `dsh-cmdk`，或命令行安装：
 
 ```
-dsh plugin --profile desktop add link:/Users/mumu/Documents/微信插件/DSH插件/cmdk2
+dsh plugin add dsh-cmdk
 ```
 
 装完重启桌面 app（或刷新页面）拿到新的 client 模块。
